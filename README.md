@@ -26,21 +26,21 @@ helm repo update
 ```
 ### Install the External Secrets Operator using Helm:
 ```bash
-helm install external-secrets external-secrets/external-secrets \
+helm upgrade --install external-secrets external-secrets/external_secrets \
   -n external-secrets \
-  --reuse-values \
-  --set image.repository=123456789012.dkr.ecr.us-east-1.amazonaws.com/external-secrets \
+  --set image.repository=887998956998.dkr.ecr.us-east-1.amazonaws.com/external_secrets/eso \
   --set image.tag=latest \
   --set installCRDs=true
-
-kubectl rollout restart deployment external-secrets-webhook \
-  -n external-secrets
 
 ```
 ### Verify the installation:
 ```bash
 kubectl get pods -n external-secrets
+
+! [homepage](Screenshots%20in%20README.md.html)
 ```
+
+### 
 you should see the External Secrets Operator pod running.
 
 ## Step 2: Configure AWS Secrets Manager
@@ -70,7 +70,7 @@ you should see the External Secrets Operator pod running.
 ```bash
 aws iam create-policy \
 --policy-name ExternalSecretsOperatorPolicy \
---policy-document file://eso-policy.json
+--policy-document file://eso_policy.json
 ```
 Note the ARN of the created policy for the next step.
 
@@ -81,19 +81,6 @@ aws iam create-role \
 --policy-arn arn:aws:iam::123456789012:policy/ExternalSecretsOperatorPolicy
 ```
 
-## Step 3: Create an IAM role for Service Account (IRSA):
-### Create IAM OIDC provider for your EKS cluster:
-```bash
-# Get cluster OIDC issuer URL
-OIDC_URL=$(aws eks describe-cluster --name <clustername> --query "cluster.identity.oidc.issuer" --output text | cut -d/ -f3-)
-
-# Check if OIDC provider already exists
-aws iam list-open-id-connect-providers | grep $OIDC_URL || \
-aws iam create-open-id-connect-provider \
-  --url https://$OIDC_URL \
-  --client-id-list sts.amazonaws.com \
-  --thumbprint-list $(openssl s_client -connect $OIDC_URL:443 -showcerts < /dev/null 2>/dev/null | openssl x509 -fingerprint -noout | cut -d= -f2 | tr -d ':')    
-```
 ### Create an IAM Trusted policy(eso-trust-policy.json):
 ```bash
 {
@@ -116,6 +103,35 @@ aws iam create-open-id-connect-provider \
 }
 
 ```
+### create IAM role with the trust policy:
+```bash
+aws iam create-role \
+  --role-name ExternalSecretsOperatorTrustRole \
+  --assume-role-policy-document file://eso_trust.json
+```
+### Attach the IAM policy to the IAM role:
+```bash
+aws iam attach-role-policy \
+  --role-name ExternalSecretsOperatorTrustRole \
+  --policy-arn arn:aws:iam::887998956998:policy/ExternalSecretsOperatorPolicy
+```
+
+
+
+## Step 3: Create an IAM role for Service Account (IRSA):
+### Create IAM OIDC provider for your EKS cluster:
+```bash
+# Get cluster OIDC issuer URL
+OIDC_URL=$(aws eks describe-cluster --name <clustername> --query "cluster.identity.oidc.issuer" --output text | cut -d/ -f3-)
+
+# Check if OIDC provider already exists
+aws iam list-open-id-connect-providers | grep $OIDC_URL || \
+aws iam create-open-id-connect-provider \
+  --url https://$OIDC_URL \
+  --client-id-list sts.amazonaws.com \
+  --thumbprint-list $(openssl s_client -connect $OIDC_URL:443 -showcerts < /dev/null 2>/dev/null | openssl x509 -fingerprint -noout | cut -d= -f2 | tr -d ':')    
+```
+
 
 ## Step 4: Create a Kubernetes Service Account (sa.yaml):
 ```yaml
