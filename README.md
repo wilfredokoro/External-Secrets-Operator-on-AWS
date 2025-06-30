@@ -37,7 +37,7 @@ helm upgrade --install external-secrets external-secrets/external_secrets \
 ```bash
 kubectl get pods -n external-secrets
 
-![homepage](screenshot.png)
+![homepage](./screenshot1.png)
 ```
 
 ### 
