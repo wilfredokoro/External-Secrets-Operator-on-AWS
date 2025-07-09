@@ -126,7 +126,7 @@ export VAULT_TOKEN=<dev-root-token>
 
 vault login $VAULT_TOKEN
 ```
-![picture01](vaultlogin.png)
+![picture01](Screenshots/vaultlogin.png)
 
 ```bash
 vault auth enable aws
@@ -200,14 +200,14 @@ helm install external-secrets external-secrets/external-secrets \
 ```bash 
 kubectl get all -n external-secrets
 ```
-![picture03](esooperator.png)
+![picture03](Screenshots/esooperator.png)
 
 ## 10. Write a Sample Secret into Vault KV-v2
 ```bash
 vault secrets enable -path=kv kv-v2
 vault kv put kv/myapp/config username="12345" password="54321"
 ```
-![picture02](putsecret.png)
+![picture02](Screenshots/putsecret.png)
 
 ## 11. Create the SecretStore "vault-secretstore.yaml"
 ```bash
@@ -286,7 +286,7 @@ kubectl annotate externalsecret myapp-secret \
 kubectl get secret myapp -n external-secrets -o yaml
 ```
 
-![picture03](SyncedSecret.png)
+![picture03](Screenshots/SyncedSecret.png)
 
 
 ### 13.1 Decode to confirm:
@@ -296,7 +296,7 @@ kubectl get secret myapp -n external-secrets -o yaml
 echo NTQzMjE= | base64 --decode && echo
 echo MTIzNDU=  | base64 --decode && echo
 ```
-![picture04](DecodeSecret.png)
+![picture04](Screenshots/DecodeSecret.png)
 
 
 # Example of ESO for Statefullset PostgreSql:
@@ -384,14 +384,14 @@ kubectl apply -f external-secret-postgres.yaml
 ```bash
 kubectl get secret postgresql-secret -n default -o yaml
 ```
-![picture05](pgsecret.png)
+![picture05](Screenshots/pgsecret.png)
 
 ### 4.1 Decode and sanity-check
 ```bash
 kubectl get secret postgresql-secret -o jsonpath='{.data.POSTGRES_USER}' | base64 --decode && echo
 kubectl get secret postgresql-secret -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 --decode && echo
 ```
-![picture06](decodesecrett2.png)
+![picture06](Screenshots/decodesecrett2.png)
 
 
 ## Step 4: Create a Headless Service for PostgreSQL "postgresql-headless-svc.yaml"
@@ -481,7 +481,7 @@ kubectl rollout status statefulset/postgresql -n default
 kubectl get pods -l app=postgresql -n default
 ```
 
-![picture07](pgstatus.png)
+![picture07](Screenshots/pgstatus.png)
 
 
 ## Step 8. Connect to Postgres:
@@ -494,7 +494,7 @@ kubectl exec -it postgresql-0 -n default -- psql \
   -d postgres
 ```
 You’ll be at a psql prompt authenticated with the Vault-synced credentials.
-![picture08](pgconnect.png)
+![picture08](Screenshots/pgconnect.png)
 
 
 
