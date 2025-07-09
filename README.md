@@ -316,7 +316,7 @@ vault secrets enable -path=database kv-v2
 ### Create a secret at database/postgresql:
 
 ```bash
-vault kv put database/postgresql \
+vault kv put kv/database/creds \
   username="pguser" \
   password="s3cr3tP@ss"
 ```
